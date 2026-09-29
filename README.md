@@ -248,4 +248,3 @@ Swapping the model is a one-line change in step 4. Small-model options:
 - Constrain decoding with a JSON schema/grammar so output is always valid.
 - Increase `num_train_epochs` or LoRA rank `r` if the model underfits.
 - Push the adapter or GGUF to the Hugging Face Hub with `push_to_hub_gguf`.
-# fine-tuning-demo
