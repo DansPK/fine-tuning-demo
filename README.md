@@ -21,6 +21,7 @@ because it is cheap to fine-tune and run.
 - [Repository layout](#repository-layout)
 - [The dataset](#the-dataset)
 - [How the demo works (walkthrough)](#how-the-demo-works-walkthrough)
+- [Serving with a Cloudflare tunnel](#serving-with-a-cloudflare-tunnel)
 - [Key concepts in one line each](#key-concepts-in-one-line-each)
 - [Getting started](#getting-started)
 - [Customizing the demo](#customizing-the-demo)
@@ -75,6 +76,7 @@ fine-tuning a small model does better, faster and cheaper than prompting a large
 | `fine-tune.ipynb` | The main notebook: data prep → QLoRA → training → inference → GGUF export |
 | `json_extraction_dataset_500.json` | 500 HTML → JSON training examples |
 | `Modelfile` | Ollama definition for the exported GGUF model |
+| `serve.sh` | Builds the Ollama model and exposes it through a Cloudflare quick tunnel |
 | `pyproject.toml` | Minimal project metadata (the training itself runs in the notebook) |
 
 ---
@@ -201,6 +203,60 @@ ollama run qwen3-json-extractor "Extract the product information:
 ```
 The `Modelfile` sets the ChatML template, the sampling defaults and the system prompt so
 the local model behaves like the one you trained.
+
+---
+
+## Serving with a Cloudflare tunnel
+
+`serve.sh` builds the model in Ollama and exposes its API on a public
+`trycloudflare.com` URL using a
+[Cloudflare quick tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/do-more-with-tunnels/trycloudflare/) —
+no Cloudflare account needed.
+
+```bash
+./serve.sh
+```
+
+It will:
+
+1. Auto-install `ollama`, `cloudflared` and system dependencies like `zstd` if they are
+   missing.
+2. Verify the `.gguf` referenced by the `Modelfile` is present.
+3. Start the Ollama server if it is not already running, then create the model.
+4. Open a tunnel (rewriting the `Host` header to a localhost value so Ollama accepts the
+   request) and print the public URL.
+
+Once it is running, call the model through the tunnel with Ollama's own API:
+
+```bash
+TUNNEL=https://<random>.trycloudflare.com
+curl "$TUNNEL/api/generate" -d @- <<'JSON'
+{
+  "model": "qwen3-json-extractor",
+  "prompt": "Extract the product information:\n<div class='product'><h2>iPad Air</h2><span class='price'>$1344</span><span class='category'>audio</span><span class='brand'>Dell</span></div>",
+  "stream": false
+}
+JSON
+```
+
+or through the OpenAI-compatible endpoint:
+
+```bash
+curl "$TUNNEL/v1/chat/completions" \
+  -H "Content-Type: application/json" \
+  -d '{"model": "qwen3-json-extractor",
+       "messages": [{"role": "user", "content": "Extract the product information ..."}]}'
+```
+
+Override the defaults with environment variables if needed:
+
+```bash
+MODEL=my-model PORT=11434 ./serve.sh
+```
+
+> **Security:** the quick tunnel has **no authentication** — anyone who has the URL can
+> query the model. Ollama itself stays bound to `127.0.0.1` and only the tunnel is public.
+> Stop the script with `Ctrl+C` to close it.
 
 ---
 
