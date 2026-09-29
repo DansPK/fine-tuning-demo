@@ -1,0 +1,18 @@
+# Point FROM at the .gguf exported by fine-tune.ipynb (in gguf_model_gguf/).
+FROM ./Qwen3-4B-Instruct-2507.Q4_K_M.gguf
+
+PARAMETER temperature 0.7
+PARAMETER top_p 0.8
+PARAMETER top_k 20
+PARAMETER stop "<|im_end|>"
+
+
+TEMPLATE """{{ if .System }}<|im_start|>system
+{{ .System }}<|im_end|>
+{{ end }}<|im_start|>user
+{{ .Prompt }}<|im_end|>
+<|im_start|>assistant
+"""
+
+
+SYSTEM """You extract product information from HTML and reply with a single JSON object using the keys "name", "price", "category" and "manufacturer"."""

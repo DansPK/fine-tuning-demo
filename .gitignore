@@ -1,0 +1,54 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# --- Virtual environments ---
+.venv/
+venv/
+env/
+ENV/
+
+# --- Jupyter ---
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+# Keep the demo notebook tracked, but ignore any local scratch copies
+Untitled*.ipynb
+
+# --- Training outputs / model artifacts ---
+outputs/
+gguf_model/
+gguf_model_gguf/
+*.gguf
+*.safetensors
+*.bin
+*.pt
+*.pth
+qwen_lora/
+lora_model/
+unsloth_compiled_cache/
+
+# --- Hugging Face / datasets cache ---
+.cache/
+.huggingface/
+wandb/
+runs/
+
+# --- IDE / editors ---
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# --- OS ---
+.DS_Store
+Thumbs.db
+
+# --- Environment files ---
+.env
+.env.*
