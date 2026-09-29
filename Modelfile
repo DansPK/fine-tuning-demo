@@ -1,5 +1,6 @@
 # Point FROM at the .gguf exported by fine-tune.ipynb (in gguf_model_gguf/).
-FROM ./Qwen3-4B-Instruct-2507.Q4_K_M.gguf
+# The Step 11 cell prints the exact filename; keep this line in sync with it.
+FROM ./Qwen3-1.7B.Q4_K_M.gguf
 
 PARAMETER temperature 0.7
 PARAMETER top_p 0.8
